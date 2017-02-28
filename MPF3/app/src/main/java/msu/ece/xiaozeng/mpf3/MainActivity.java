@@ -1,7 +1,9 @@
 package msu.ece.xiaozeng.mpf3;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -15,14 +17,18 @@ import android.widget.ImageView;
 
 import com.jph.takephoto.app.TakePhoto;
 import com.jph.takephoto.app.TakePhotoImpl;
+import com.jph.takephoto.model.CropOptions;
 import com.jph.takephoto.model.InvokeParam;
 import com.jph.takephoto.model.TContextWrap;
 import com.jph.takephoto.model.TResult;
 import com.jph.takephoto.permission.InvokeListener;
 import com.jph.takephoto.permission.PermissionManager;
 import com.jph.takephoto.permission.TakePhotoInvocationHandler;
+import com.soundcloud.android.crop.Crop;
 
 import org.opencv.android.OpenCVLoader;
+
+import java.io.File;
 
 import msu.ece.xiaozeng.mpf3.classifier.TensorFlowImageClassifier;
 
@@ -41,22 +47,44 @@ public class MainActivity extends AppCompatActivity implements TakePhoto.TakeRes
         setSupportActionBar(toolbar);
         setTitle("MSU Mobile Pill Finder");
 
-        ImageView iv_msu_logo = (ImageView) findViewById(R.id.iv_msu_police_logo);
-        iv_msu_logo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this , SearchResultActivity.class);
-                startActivity(intent);
-            }
-        });
-
-
         /*initialize tensorflow*/
         //mTensorFlowClassifier = new TensorFlowImageClassifier(MainActivity.this);
 
         /*initialize opencv*/
         //if (OpenCVLoader.initDebug()) {
         //}
+    }
+
+     public void onClick(View view){
+
+         if (view.getId() == R.id.iv_msu_police_logo){
+             Intent intent = new Intent(MainActivity.this , SearchResultActivity.class);
+             startActivity(intent);
+
+         } else if (view.getId() == R.id.iv_take_photo){
+             File file=new File(Environment.getExternalStorageDirectory(), "/temp/"+System.currentTimeMillis() + ".jpg");
+             if (!file.getParentFile().exists())file.getParentFile().mkdirs();
+             Uri imageUri = Uri.fromFile(file);
+             getTakePhoto().onPickFromCaptureWithCrop(imageUri,getCropOptions());
+         }
+
+    }
+
+    /**
+     * crop option
+     * @return
+     */
+    private CropOptions getCropOptions(){
+        int height= 400;
+        int width= 400;
+
+        CropOptions.Builder builder=new CropOptions.Builder();
+
+        builder.setAspectX(width).setAspectY(height);
+        //builder.setOutputX(width).setOutputY(height);
+
+        builder.setWithOwnCrop(true);
+        return builder.create();
     }
 
     @Override
