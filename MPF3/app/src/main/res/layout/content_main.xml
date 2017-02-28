@@ -34,9 +34,22 @@
         android:onClick="onClick"
         android:layout_marginLeft="50dp"
         android:layout_marginRight="50dp"
+        android:layout_marginTop="31dp"
         android:layout_below="@+id/iv_msu_police_logo"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="31dp" />
+        android:layout_alignStart="@+id/iv_msu_police_logo"
+        android:layout_marginStart="27dp" />
+
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        app:srcCompat="@drawable/mag_glass"
+        android:id="@+id/iv_start_search"
+        android:onClick="onClick"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+        android:layout_alignTop="@+id/iv_take_photo"
+        android:layout_alignEnd="@+id/iv_msu_police_logo"
+        android:layout_marginEnd="12dp" />
 
 
 </RelativeLayout>

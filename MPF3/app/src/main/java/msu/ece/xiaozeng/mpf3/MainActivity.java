@@ -1,6 +1,8 @@
 package msu.ece.xiaozeng.mpf3;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -30,12 +32,13 @@ import org.opencv.android.OpenCVLoader;
 
 import java.io.File;
 
+import msu.ece.xiaozeng.mpf3.classifier.PillClassifier;
 import msu.ece.xiaozeng.mpf3.classifier.TensorFlowImageClassifier;
 
 
 public class MainActivity extends AppCompatActivity implements TakePhoto.TakeResultListener,InvokeListener {
-
-    private TensorFlowImageClassifier mTensorFlowClassifier;
+    private final static String TAG = "MainActivity";
+    private PillClassifier pillClassifier;
     private TakePhoto takePhoto;
     private InvokeParam invokeParam;
     @Override
@@ -48,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements TakePhoto.TakeRes
         setTitle("MSU Mobile Pill Finder");
 
         /*initialize tensorflow*/
-        //mTensorFlowClassifier = new TensorFlowImageClassifier(MainActivity.this);
+        pillClassifier = new PillClassifier(MainActivity.this);
 
         /*initialize opencv*/
         //if (OpenCVLoader.initDebug()) {
@@ -62,10 +65,26 @@ public class MainActivity extends AppCompatActivity implements TakePhoto.TakeRes
              startActivity(intent);
 
          } else if (view.getId() == R.id.iv_take_photo){
-             File file=new File(Environment.getExternalStorageDirectory(), "/temp/"+System.currentTimeMillis() + ".jpg");
+             File file=new File(Environment.getExternalStorageDirectory(), "/temp/pill.jpg");
              if (!file.getParentFile().exists())file.getParentFile().mkdirs();
              Uri imageUri = Uri.fromFile(file);
              getTakePhoto().onPickFromCaptureWithCrop(imageUri,getCropOptions());
+         }
+         else if (view.getId() == R.id.iv_start_search){
+
+             File file=new File(Environment.getExternalStorageDirectory(), "/temp/pill.jpg");
+             if (!file.exists()){
+                 Log.e(TAG,"JPG does not exist!");
+                 return;
+             }
+             else{
+                 BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+                 Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath(),bmOptions);
+                 bitmap = Bitmap.createScaledBitmap(bitmap,PillClassifier.INPUT_SIZE, PillClassifier.INPUT_SIZE,true);
+                 pillClassifier.recognizePill(bitmap);
+             }
+
+
          }
 
     }
@@ -112,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements TakePhoto.TakeRes
     @Override
     protected void onStop() {
         try {
-            if (mTensorFlowClassifier != null) mTensorFlowClassifier.close();
+            if (pillClassifier != null) pillClassifier.close();
         } catch (Throwable t) {
             // close quietly
         }

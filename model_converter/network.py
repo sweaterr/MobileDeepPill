@@ -2,6 +2,7 @@ import tensorflow as tf
 import tensorflow.contrib.slim as slim
 
 height = width = 227
+
 def evaluate_network_slim():
 
 

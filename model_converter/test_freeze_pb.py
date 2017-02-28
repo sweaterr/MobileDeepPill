@@ -9,19 +9,9 @@ import tensorflow.contrib.slim as slim
 import network
 import os
 batch_size = 128
-height = width = 224
+
 num_classes = 1000
 
-def save_model(model_path):
-
-    input = tf.placeholder(tf.float32,(None,height,width,3),'input_tensor')
-    logits, _ = alexnet.alexnet_v2(input, num_classes)
-    output_tensor = tf.identity(logits,name='output_tensor')
-    with tf.Session() as sess:
-        sess.run(tf.global_variables_initializer())
-        saver = tf.train.Saver()
-        chkp = saver.save(sess, model_path)
-        print( 'Save to ' + chkp )
 
 
 def freeze_model_single(model_path):
@@ -97,9 +87,6 @@ def freeze_model(model_folder):
         gray_restorer.restore(sess, gray_ckpt.model_checkpoint_path)
 
         train_vars = slim.get_model_variables()
-        for each in train_vars:
-            #if 'conv1/weights' in each.op.name:
-                print (each.op.name, each.eval())
 
         output_graph_def = graph_util.convert_variables_to_constants(
             sess,  # The session is used to retrieve the weights
@@ -138,9 +125,9 @@ def main(_):
 
     #freeze_model_single('/home/xiao/projects/tensoflow_pillrec/model_alexnet/color_0')
 
-    #freeze_model( '/home/xiao/projects/tensoflow_pillrec/model_alexnet')
+    freeze_model( '/home/xiao/projects/tensoflow_pillrec/model_alexnet')
 
-    optimize_model('model/frozen_model.pb')
+    #optimize_model('model/frozen_model.pb')
 
 
 
