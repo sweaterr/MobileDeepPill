@@ -123,8 +123,8 @@ def optimize_model(model_path):
 
     output_graph_def = optimize_for_inference_lib.optimize_for_inference(
         input_graph_def,
-        'color_ph,gray_ph,gradient_ph'.split(','),
-        'color_fea,gray_fea,gradient_fea'.split(','), dtypes.float32.as_datatype_enum)
+        'color_ph,'.split(','),
+        'color_fea,gray_fea'.split(','), dtypes.float32.as_datatype_enum)
 
     with tf.gfile.FastGFile('model/optimzed_model.pb','w') as f:
         f.write(output_graph_def.SerializeToString())
