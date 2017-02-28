@@ -8,26 +8,18 @@ def evaluate_network_slim():
     color_ph = tf.placeholder(dtype=tf.float32,
                                shape=(None, height, width, 3),
                                name='color_ph')
-    gray_ph = tf.placeholder(dtype=tf.float32,
-                               shape=(None, height, width, 1),
-                               name='gray_ph')
-    gradient_ph = tf.placeholder(dtype=tf.float32,
-                               shape=(None, height, width, 1),
-                               name='gradient_ph')
-    is_training = tf.placeholder(tf.bool, name='is_training')
 
-    color_feature = create_network_slim(color_ph, False, is_training,'color')['fea']
-    gray_feature = create_network_slim(gray_ph, False, is_training, 'gray')['fea']
-    gradient_feature = create_network_slim(gradient_ph, False, is_training, 'gradient')['fea']
+    gray_imgs = tf.image.rgb_to_grayscale(color_ph, name=None)
+
+    color_feature = create_network_slim(color_ph, False,  'color')['fea']
+    gray_feature = create_network_slim(gray_imgs, False,  'gray')['fea']
 
     anchor_feature = tf.nn.l2_normalize(color_feature, dim=1, epsilon=1e-12, name="color_fea")
     gray_feature = tf.nn.l2_normalize(gray_feature, dim=1, epsilon=1e-12, name="gray_fea")
-    gradient_feature = tf.nn.l2_normalize(gradient_feature, dim=1, epsilon=1e-12, name="gradient_fea")
 
+    return ["color_fea","gray_fea"]
 
-    return ["color_fea","gray_fea","gradient_fea"]
-
-def create_network_slim(inputs, re_u=False, is_training=True, scope_name='color'):
+def create_network_slim(inputs, re_u=False,  scope_name='color'):
     with tf.variable_scope(scope_name, regularizer=tf.nn.l2_loss):
         with slim.arg_scope([slim.convolution2d, slim.fully_connected],
                             activation_fn=tf.nn.relu,
@@ -53,8 +45,7 @@ def create_network_slim(inputs, re_u=False, is_training=True, scope_name='color'
             conv_5_pool_flat = slim.flatten(conv_5_pool, scope='flat5')
 
             fc6 = slim.fully_connected(conv_5_pool_flat, 1024, scope='fc6')
-            fc6_dropout = slim.dropout(fc6, is_training=is_training, scope='fc6_dropout')
 
-            fc7_preact = slim.fully_connected(fc6_dropout, 128, activation_fn=None, scope='fc7')
+            fc7_preact = slim.fully_connected(fc6, 128, activation_fn=None, scope='fc7')
 
             return {'fea': fc7_preact}

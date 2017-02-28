@@ -45,7 +45,7 @@ def freeze_model_single(model_path):
 
         train_vars = slim.get_model_variables()
         for each in train_vars:
-            print each.op.name, each.eval()
+            print (each.op.name, each.eval())
 
         output_graph_def = graph_util.convert_variables_to_constants(
             sess,  # The session is used to retrieve the weights
@@ -81,14 +81,11 @@ def freeze_model(model_folder):
     vars_gray_to_restore = {name_in_checkpoint(var, 'gray'): var for var in vars_to_restore  if 'gray' in var.op.name}
     gray_restorer = tf.train.Saver(vars_gray_to_restore)
 
-    vars_gradient_to_restore = {name_in_checkpoint(var, 'gradient'): var for var in vars_to_restore if 'gradient' in var.op.name}
-    gradient_restorer = tf.train.Saver(vars_gradient_to_restore)
 
     with tf.Session() as sess:
         # We retrieve our checkpoint fullpath
         color_ckpt = tf.train.get_checkpoint_state(  os.path.join(model_folder,'color_0') )
         gray_ckpt = tf.train.get_checkpoint_state(os.path.join(model_folder, 'gray_0'))
-        gradient_ckpt = tf.train.get_checkpoint_state(os.path.join(model_folder, 'gradient_0'))
 
         #sess.run(tf.global_variables_initializer())
 
@@ -98,12 +95,11 @@ def freeze_model(model_folder):
 
         color_restorer.restore(sess, color_ckpt.model_checkpoint_path)
         gray_restorer.restore(sess, gray_ckpt.model_checkpoint_path)
-        gradient_restorer.restore(sess, gradient_ckpt.model_checkpoint_path)
 
         train_vars = slim.get_model_variables()
         for each in train_vars:
             #if 'conv1/weights' in each.op.name:
-                print each.op.name, each.eval()
+                print (each.op.name, each.eval())
 
         output_graph_def = graph_util.convert_variables_to_constants(
             sess,  # The session is used to retrieve the weights
