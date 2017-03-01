@@ -51,7 +51,8 @@ public class MainActivity extends AppCompatActivity implements TakePhoto.TakeRes
         setTitle("MSU Mobile Pill Finder");
 
         /*initialize tensorflow*/
-        pillClassifier = new PillClassifier(MainActivity.this);
+        if (pillClassifier == null)
+            pillClassifier = new PillClassifier(MainActivity.this);
 
         /*initialize opencv*/
         //if (OpenCVLoader.initDebug()) {
@@ -80,7 +81,8 @@ public class MainActivity extends AppCompatActivity implements TakePhoto.TakeRes
              else{
                  BitmapFactory.Options bmOptions = new BitmapFactory.Options();
                  Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath(),bmOptions);
-                 bitmap = Bitmap.createScaledBitmap(bitmap,PillClassifier.INPUT_SIZE, PillClassifier.INPUT_SIZE,true);
+                 bitmap = Bitmap.createScaledBitmap(bitmap,PillClassifier.INPUT_SIZE,
+                         PillClassifier.INPUT_SIZE, true);
                  pillClassifier.recognizePill(bitmap);
              }
 
@@ -98,11 +100,9 @@ public class MainActivity extends AppCompatActivity implements TakePhoto.TakeRes
         int width= 400;
 
         CropOptions.Builder builder=new CropOptions.Builder();
-
         builder.setAspectX(width).setAspectY(height);
         //builder.setOutputX(width).setOutputY(height);
-
-        builder.setWithOwnCrop(true);
+        builder.setWithOwnCrop(false);
         return builder.create();
     }
 
@@ -166,13 +166,15 @@ public class MainActivity extends AppCompatActivity implements TakePhoto.TakeRes
 
     @Override
     public void takeSuccess(TResult result) {
+        Log.d(TAG,"take success");
     }
     @Override
     public void takeFail(TResult result,String msg) {
-
+        Log.d(TAG,"take Fail");
     }
     @Override
     public void takeCancel() {
+        Log.d(TAG,"take Cancel");
     }
 
     @Override
