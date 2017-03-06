@@ -18,6 +18,9 @@ public class Pill implements Serializable {
     public int frontPicID;
     public int backPicID;
 
+    public Pill(String name){
+        this.name = name;
+    }
 
     public Pill(String name, String imprint, String color, String description, int frontPic, int backPic) {
         this.name = name;

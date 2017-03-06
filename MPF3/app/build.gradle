@@ -41,3 +41,4 @@ dependencies {
     compile project(':Tensorflow-Android-Inference-alpha-debug')
     compile project(':opencv32-adnroid-release')
 }
+

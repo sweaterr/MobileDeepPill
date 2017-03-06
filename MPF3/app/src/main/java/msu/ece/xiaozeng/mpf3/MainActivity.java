@@ -33,6 +33,7 @@ import org.opencv.android.OpenCVLoader;
 import java.io.File;
 
 import msu.ece.xiaozeng.mpf3.classifier.PillClassifier;
+import msu.ece.xiaozeng.mpf3.classifier.RefImageDatabase;
 import msu.ece.xiaozeng.mpf3.classifier.TensorFlowImageClassifier;
 
 
@@ -41,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements TakePhoto.TakeRes
     private PillClassifier pillClassifier;
     private TakePhoto takePhoto;
     private InvokeParam invokeParam;
+    private ImageView iv_msu_police_logo;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         getTakePhoto().onCreate(savedInstanceState);
@@ -50,13 +52,17 @@ public class MainActivity extends AppCompatActivity implements TakePhoto.TakeRes
         setSupportActionBar(toolbar);
         setTitle("MSU Mobile Pill Finder");
 
+        iv_msu_police_logo = (ImageView) findViewById(R.id.iv_msu_police_logo);
+
         /*initialize tensorflow*/
         if (pillClassifier == null)
             pillClassifier = new PillClassifier(MainActivity.this);
 
         /*initialize opencv*/
-        //if (OpenCVLoader.initDebug()) {
-        //}
+        if (OpenCVLoader.initDebug()) {
+            RefImageDatabase refDB = RefImageDatabase.getInstance(this);
+        }
+
     }
 
      public void onClick(View view){
@@ -130,11 +136,12 @@ public class MainActivity extends AppCompatActivity implements TakePhoto.TakeRes
 
     @Override
     protected void onStop() {
-        try {
-            if (pillClassifier != null) pillClassifier.close();
-        } catch (Throwable t) {
-            // close quietly
-        }
+//        try {
+//            if (pillClassifier != null) pillClassifier.close();
+//            pillClassifier = null;
+//        } catch (Throwable t) {
+//            // close quietly
+//        }
         super.onStop();
     }
 
@@ -166,12 +173,14 @@ public class MainActivity extends AppCompatActivity implements TakePhoto.TakeRes
 
     @Override
     public void takeSuccess(TResult result) {
-        Log.d(TAG,"take success");
+        iv_msu_police_logo.setImageBitmap(BitmapFactory.decodeFile(result.getImage().getOriginalPath()));
+        Log.d(TAG,"take success, path:"+result.getImage().getCompressPath());
     }
     @Override
     public void takeFail(TResult result,String msg) {
         Log.d(TAG,"take Fail");
     }
+
     @Override
     public void takeCancel() {
         Log.d(TAG,"take Cancel");
